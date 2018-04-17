@@ -73,7 +73,7 @@ class UsersModel extends HandlerModel
     }
     
     public function Insert($login, $password) {
-        $this->db->query('INSERT INTO Users (login, password) VALUES ('.$login.','.$password.');');
+        $this->db->query("INSERT INTO Users (login, password) VALUES ('$login','$password');");
         return $this->Return($this->db->insert_id);
 	}
 	
@@ -129,6 +129,14 @@ class App extends Config
             echo "Error: ".$createTable->Error().'<br>';
         } else {
             echo $createTable->Result().'<br>';
+        }
+
+        echo 'Insert user in table Users...';
+        $insert = $usersModel->Insert('admin', 'someadminpass');
+        if($insert->Error()){
+            echo "Error: ".$insert->Error().'<br>';
+        } else {
+            echo 'ok <br>';
         }
 
         $mysqli->close();
