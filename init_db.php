@@ -77,8 +77,34 @@ class UsersModel extends HandlerModel
         return $this->Return($this->db->insert_id);
 	}
 	
-	public function Find($login, $password) {
-		$this->db->query("SELECT id FROM Users LIMIT 0,1");
+};
+
+class CoinsModel extends HandlerModel
+{
+    
+	function __construct($db) {
+		$this->db = $db;
+    }
+    
+    public function DropTable() {
+        $this->db->query('DROP TABLE IF EXISTS Coins');
+        return $this->Return('ok');
+    }
+	 
+	public function CreateTable() {
+		$this->db->query("CREATE TABLE IF NOT EXISTS Coins(
+			id	        INTEGER(10)     NOT NULL    AUTO_INCREMENT,
+			user_id     VARCHAR(50)     NOT NULL,
+			balance     INTEGER(10)     NOT NULL    DEFAULT 0,
+			PRIMARY KEY (id),
+            FOREIGN KEY (user_id) REFERENCES Users(id)
+        )");
+        return $this->Return('ok');
+    }
+    
+    public function Insert($userId, $balance) {
+        $this->db->query("INSERT INTO Users (user_id, balance) VALUES ('$userId','$balance');");
+        return $this->Return($this->db->insert_id);
 	}
 	
 };
