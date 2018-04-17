@@ -36,6 +36,11 @@ class UsersModel extends HandlerModel
 		$this->db = $db;
 	}
 	 
+    public function DropTable() {
+        $this->db->query('DROP TABLE Users');
+        return $this->Return('ok');
+    }
+    
 	public function CreateTable() {
 		$this->db->query("CREATE TABLE Users(
 			id	        INTEGER(10)     NOT NULL    AUTO_INCREMENT,
