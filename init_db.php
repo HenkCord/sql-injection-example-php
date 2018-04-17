@@ -87,7 +87,7 @@ class CoinsModel extends HandlerModel
     }
     
     public function DropTable() {
-        $this->db->query('DROP TABLE IF EXISTS Coins');
+        $this->db->query('DROP TABLE IF EXISTS Coins;');
         return $this->Return('ok');
     }
 	 
@@ -96,14 +96,13 @@ class CoinsModel extends HandlerModel
 			id	        INTEGER(10)     NOT NULL    AUTO_INCREMENT,
 			user_id     INTEGER(10)     NOT NULL,
 			balance     INTEGER(10)     NOT NULL    DEFAULT 0,
-			PRIMARY KEY (id),
-            FOREIGN KEY (user_id) REFERENCES Users(id)
-        )");
+			PRIMARY KEY (id)
+        );");
         return $this->Return('ok');
     }
     
     public function Insert($userId, $balance) {
-        $this->db->query("INSERT INTO Users (user_id, balance) VALUES ('$userId','$balance');");
+        $this->db->query("INSERT INTO Coins (user_id, balance) VALUES ('$userId','$balance');");
         return $this->Return($this->db->insert_id);
 	}
 	
