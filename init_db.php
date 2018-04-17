@@ -94,7 +94,7 @@ class CoinsModel extends HandlerModel
 	public function CreateTable() {
 		$this->db->query("CREATE TABLE IF NOT EXISTS Coins(
 			id	        INTEGER(10)     NOT NULL    AUTO_INCREMENT,
-			user_id     VARCHAR(50)     NOT NULL,
+			user_id     INTEGER(10)     NOT NULL,
 			balance     INTEGER(10)     NOT NULL    DEFAULT 0,
 			PRIMARY KEY (id),
             FOREIGN KEY (user_id) REFERENCES Users(id)
