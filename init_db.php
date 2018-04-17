@@ -25,8 +25,28 @@ class HandlerModel
     protected $db;
 
     protected function Return($result = null){
-        return new ResultError($result, $this->db->error);
+        $err = $this->db->error;
+        return new ResultError($result, $err);
     }
+};
+
+class DatabaseModel extends HandlerModel
+{
+    
+	function __construct($db) {
+		$this->db = $db;
+	}
+    
+    public function Drop() {
+        $this->db->query('DROP DATABASE IF EXISTS sql_inj_example;');
+        return $this->Return('ok');
+    }
+
+	public function Create() {
+		$this->db->query('CREATE DATABASE IF NOT EXISTS sql_inj_example;');
+        return $this->Return('ok');
+    }
+	
 };
 
 class UsersModel extends HandlerModel
@@ -35,21 +55,26 @@ class UsersModel extends HandlerModel
 	function __construct($db) {
 		$this->db = $db;
 	}
-	 
+    
     public function DropTable() {
-        $this->db->query('DROP TABLE Users');
+        $this->db->query('DROP TABLE IF EXISTS Users;');
         return $this->Return('ok');
     }
-    
+
 	public function CreateTable() {
-		$this->db->query("CREATE TABLE Users(
+		$this->db->query('CREATE TABLE IF NOT EXISTS Users(
 			id	        INTEGER(10)     NOT NULL    AUTO_INCREMENT,
 			login       VARCHAR(50)     NOT NULL,
 			password    VARCHAR(50)     NOT NULL,
 			PRIMARY KEY (id),
             UNIQUE(login)
-        )");
+        );');
         return $this->Return('ok');
+    }
+    
+    public function Insert($login, $password) {
+        $this->db->query('INSERT INTO Users (login, password) VALUES ('.$login.','.$password.');');
+        return $this->Return($this->db->insert_id);
 	}
 	
 	public function Find($login, $password) {
@@ -58,23 +83,56 @@ class UsersModel extends HandlerModel
 	
 };
 
-
 class App extends Config
 {
     function __construct() {
-        $mysqli = new mysqli(self::HOST, self::USERNAME, self::PASSWORD, self::DB_NAME);
+        $mysqli = new mysqli(self::HOST, self::USERNAME, self::PASSWORD);
         if ($mysqli->connect_errno) {
-            printf("Connect failed: %s\n", $mysqli->connect_error);
+            echo "Connect failed: %s\n", $mysqli->connect_error;
             exit();
         }
 
-        $usersModel = new UsersModel($mysqli);
-        $createTable = $usersModel->CreateTable();
-        if($createTable->Error()){
-            print("Error: ".$createTable->Error());
+        // DatabaseModel
+        $databaseModel = new DatabaseModel($mysqli);
+
+        echo 'Created database...';
+        $databaseModel = $databaseModel->Create();
+        if($databaseModel->Error()){
+            echo "Error: ".$databaseModel->Error().'<br>';
+        } else {
+            echo $databaseModel->Result().'<br>';
+        }
+
+        $mysqli->close();
+
+
+        $mysqli = new mysqli(self::HOST, self::USERNAME, self::PASSWORD, self::DB_NAME);
+        if ($mysqli->connect_errno) {
+            echo "Connect failed: %s\n", $mysqli->connect_error;
             exit();
         }
-        printf($createTable->Result());
+        
+        // UsersModel
+        $usersModel = new UsersModel($mysqli);
+
+        echo 'Droped table Users...';
+        $dropTable = $usersModel->DropTable();
+        if($dropTable->Error()){
+            echo "Error: ".$dropTable->Error().'<br>';
+        } else {
+            echo $dropTable->Result().'<br>';
+        }
+
+        echo 'Created table Users...';
+        $createTable = $usersModel->CreateTable();
+        if($createTable->Error()){
+            echo "Error: ".$createTable->Error().'<br>';
+        } else {
+            echo $createTable->Result().'<br>';
+        }
+
+        $mysqli->close();
+
     }
 };
 
