@@ -165,6 +165,33 @@ class App extends Config
             echo 'ok <br>';
         }
 
+        // CoinsModel
+        $coinsModel = new CoinsModel($mysqli);
+
+        echo 'Droped table Coins...';
+        $dropTable = $coinsModel->DropTable();
+        if($dropTable->Error()){
+            echo "Error: ".$dropTable->Error().'<br>';
+        } else {
+            echo $dropTable->Result().'<br>';
+        }
+
+        echo 'Created table Coins...';
+        $createTable = $coinsModel->CreateTable();
+        if($createTable->Error()){
+            echo "Error: ".$createTable->Error().'<br>';
+        } else {
+            echo $createTable->Result().'<br>';
+        }
+
+        echo 'Insert entry in table Coins...';
+        $insert = $coinsModel->Insert(1, 250);
+        if($insert->Error()){
+            echo "Error: ".$insert->Error().'<br>';
+        } else {
+            echo 'ok <br>';
+        }
+
         $mysqli->close();
 
     }
