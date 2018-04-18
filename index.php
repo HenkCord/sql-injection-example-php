@@ -1,17 +1,27 @@
 <?php
 	include('Config.class.php');
 	$error_message = null;
+	$authenticated = false;
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-		$login = $_POST['login'];
-		$password = $_POST['password'];
-		$sql = "SELECT id FROM users WHERE login = '$login' and password = '$password'";
-		$result = mysqli_query($db, $sql);
-		
-		if($result) {
-			echo $result;
+		$config = new Config();
+		$link = mysqli_connect($config::HOST, $config::USERNAME, $config::PASSWORD, $config::DB_NAME);
+		if (!$link) {
+			$error_message = mysqli_connect_error();
 		} else {
-			$error_message = mysql_error($db);
+			$login = $_POST['login'];
+			$password = $_POST['password'];
+			$sql = "SELECT id FROM users WHERE login = '$login' and password = '$password'";
+			if ($result = mysqli_query($link, $sql)) {
+				if (mysqli_num_rows($result)) {
+					$authenticated = true;
+				} else {
+					$error_message = 'Не правильные логин или пароль';
+				}
+			} else {
+				$error_message = mysqli_error($link);
+			}
 		}
+		mysqli_close($link);
 	}
 	
 ?>
@@ -29,22 +39,28 @@
 		<div class="container">
 			<div class="row justify-content-center mainLayout">
 				<div class="col-4 align-self-center mainLayout__container">
-					<form method="post" action="/">
-						<?php if (!empty($error_message)) { ?>
-							<div class="alert alert-danger" role="alert">
-								<?=$error_message?>
+					<?php if ($authenticated) { ?>
+						<div class="alert alert-success" role="alert">
+							Success
+						</div>
+					<?php } else { ?>
+						<form method="post" action="/">
+							<?php if (!empty($error_message)) { ?>
+								<div class="alert alert-danger" role="alert">
+									<?=$error_message?>
+								</div>
+							<?php } ?>
+							<div class="form-group">
+								<label for="inputLogin">Login</label>
+								<input type="text" name="login" class="form-control" id="inputLogin" placeholder="Enter login">
 							</div>
-						<?php } ?>
-						<div class="form-group">
-							<label for="inputLogin">Login</label>
-							<input type="text" name="login" class="form-control" id="inputLogin" placeholder="Enter login">
-						</div>
-						<div class="form-group">
-							<label for="inputPassword">Password</label>
-							<input type="password" name="password" class="form-control" id="inputPassword" placeholder="Enter Password">
-						</div>
-						<button type="submit" class="btn btn-primary">Sign in</button>
-					</form>
+							<div class="form-group">
+								<label for="inputPassword">Password</label>
+								<input type="password" name="password" class="form-control" id="inputPassword" placeholder="Enter Password">
+							</div>
+							<button type="submit" class="btn btn-primary">Sign in</button>
+						</form>
+					<?php } ?>
 				</div>
 			</div>
 		</div>
