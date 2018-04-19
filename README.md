@@ -19,7 +19,7 @@
 1.  Сохранить репозиторий на своём ПК
 
 ```
-git clone https://github.com/HenkCord/sql-injection-example-php.git
+git clone https://github.com/chartyom/sql-injection-example-php.git
 ```
 
 2.  Сформировать базу данных открыв в браузере
@@ -83,4 +83,4 @@ SELECT id FROM users WHERE login = ''' and password = '';
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 
-[link-author]: https://github.com/HenkCord
+[link-author]: https://github.com/chartyom
