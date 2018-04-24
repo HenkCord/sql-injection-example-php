@@ -23,6 +23,7 @@ class ResultError
 class HandlerModel
 {
     protected $db;
+    protected $db_name;
 
     protected function Return($result = null){
         $err = $this->db->error;
@@ -33,17 +34,18 @@ class HandlerModel
 class DatabaseModel extends HandlerModel
 {
     
-	function __construct($db) {
-		$this->db = $db;
+	function __construct($db, $db_name) {
+        $this->db = $db;
+        $this->db_name = $db_name;
 	}
     
     public function Drop() {
-        $this->db->query('DROP DATABASE IF EXISTS sql_inj_example;');
+        $this->db->query('DROP DATABASE IF EXISTS '.$this->db_name.';');
         return $this->Return('ok');
     }
 
 	public function Create() {
-		$this->db->query('CREATE DATABASE IF NOT EXISTS sql_inj_example;');
+		$this->db->query('CREATE DATABASE IF NOT EXISTS '.$this->db_name.';');
         return $this->Return('ok');
     }
 	
@@ -51,18 +53,19 @@ class DatabaseModel extends HandlerModel
 
 class UsersModel extends HandlerModel
 {
-    
+    public $table_name = 'Users';
+
 	function __construct($db) {
 		$this->db = $db;
 	}
     
     public function DropTable() {
-        $this->db->query('DROP TABLE IF EXISTS Users;');
+        $this->db->query('DROP TABLE IF EXISTS '.$this->table_name.';');
         return $this->Return('ok');
     }
 
 	public function CreateTable() {
-		$this->db->query('CREATE TABLE IF NOT EXISTS Users(
+		$this->db->query('CREATE TABLE IF NOT EXISTS '.$this->table_name.'(
 			id	        INTEGER(10)     NOT NULL    AUTO_INCREMENT,
 			login       VARCHAR(50)     NOT NULL,
 			password    VARCHAR(50)     NOT NULL,
@@ -73,7 +76,7 @@ class UsersModel extends HandlerModel
     }
     
     public function Insert($login, $password) {
-        $this->db->query("INSERT INTO Users (login, password) VALUES ('$login','$password');");
+        $this->db->query("INSERT INTO $this->table_name (login, password) VALUES ('$login','$password');");
         return $this->Return($this->db->insert_id);
 	}
 	
@@ -81,18 +84,19 @@ class UsersModel extends HandlerModel
 
 class CoinsModel extends HandlerModel
 {
+    public $table_name = 'Coins';
     
 	function __construct($db) {
 		$this->db = $db;
     }
     
     public function DropTable() {
-        $this->db->query('DROP TABLE IF EXISTS Coins;');
+        $this->db->query('DROP TABLE IF EXISTS '.$this->table_name.';');
         return $this->Return('ok');
     }
 	 
 	public function CreateTable() {
-		$this->db->query("CREATE TABLE IF NOT EXISTS Coins(
+		$this->db->query("CREATE TABLE IF NOT EXISTS $this->table_name(
 			id	        INTEGER(10)     NOT NULL    AUTO_INCREMENT,
 			user_id     INTEGER(10)     NOT NULL,
 			balance     INTEGER(10)     NOT NULL    DEFAULT 0,
@@ -102,7 +106,7 @@ class CoinsModel extends HandlerModel
     }
     
     public function Insert($userId, $balance) {
-        $this->db->query("INSERT INTO Coins (user_id, balance) VALUES ('$userId','$balance');");
+        $this->db->query("INSERT INTO $this->table_name (user_id, balance) VALUES ('$userId','$balance');");
         return $this->Return($this->db->insert_id);
 	}
 	
@@ -118,7 +122,7 @@ class App extends Config
         }
 
         // DatabaseModel
-        $databaseModel = new DatabaseModel($mysqli);
+        $databaseModel = new DatabaseModel($mysqli, self::DB_NAME);
 
         echo 'Created database...';
         $databaseModel = $databaseModel->Create();
